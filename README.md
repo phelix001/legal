@@ -4,72 +4,84 @@
 
 `legal` is a public [Model Context Protocol](https://modelcontextprotocol.io) server and `/legal` Claude Code skill that connects AI assistants to [Soluciones Legales Ya](https://solucioneslegalesya.com) — a licensed legal-services marketplace across Spain, Mexico, Colombia, Argentina, Chile, Peru, and the Dominican Republic.
 
-Tell Claude what kind of legal matter you have. It finds a qualified attorney in the right jurisdiction, explains mandatory disclosures, sets up the engagement, and hands you a secure browser link to the conversation.
+Tell Claude what kind of legal matter you have. It finds a qualified attorney in the right jurisdiction, explains mandatory disclosures, creates the engagement, and hands you a secure browser link to the attorney. **Claude never sees the content of your conversation with your attorney** — that's the point.
 
-## Quick start
+---
 
-```bash
-npx legal install         # browser auth + install skill + register MCP
-# open a new Claude Code session
-/legal
-```
+## Install in 60 seconds (Claude Code)
 
-Full setup instructions including Claude Desktop, Cursor, and other clients → [Setup](#setup).
+Follow these four steps in order. Don't skip any.
 
-## Attorney-client privilege is preserved by design
-
-Communications between a client and their attorney are legally privileged only if they stay confidential. A third party who learns the content generally waives the privilege. **Claude is a third party.** This MCP is built so Claude never becomes one:
-
-- **Claude never sees your messages.** The substantive legal conversation happens in your browser, via a short-lived secure URL, direct to the attorney.
-- **Claude never sees your matter details.** The `request_quote` tool takes a listing ID — not a description. You describe your situation in the browser, where it is protected.
-- **Claude never sees uploaded documents, evidence, or payment details.**
-- **Claude does see metadata:** who you hired, what state the engagement is in, pricing, timestamps, and a count of unread messages. That is enough for Claude to orchestrate without learning anything privileged.
-
-This architecture also means Anthropic's systems never retain privileged content, and a malicious message from an attorney cannot reach Claude's context to manipulate it.
-
-The seven supported jurisdictions all enforce civil-law "secreto profesional" — attorneys can face criminal penalties for breach. The infrastructure must protect them as well as you.
-
-## Setup
-
-### Requirements
-
-- Node.js 20 or later
-- One of: [Claude Code](https://claude.com/claude-code), Claude Desktop, Cursor, or any MCP-compatible AI client
-- A Soluciones account (created during install via browser magic-link)
-
-### Claude Code — one-command install
-
-This is the easiest path. It authenticates you, installs the `/legal` skill, and registers the MCP server all in one step.
+### Step 1 — Make sure you have the prerequisites
 
 ```bash
-npx legal install
+node --version          # must print v20.x or higher
+claude --version        # must print a version (Claude Code CLI installed)
 ```
 
-What happens:
+If `node` is missing → install Node.js 20+ from [nodejs.org](https://nodejs.org/).
+If `claude` is missing → install Claude Code from [claude.com/claude-code](https://claude.com/claude-code).
 
-1. A browser window opens to Soluciones Legales Ya for sign-in (magic-link email).
-2. On success, your credentials are saved to `~/.legal/config.json` with mode `0600` (readable only by you).
-3. The `/legal` skill is copied to `~/.claude/skills/legal.md`.
-4. The MCP server is registered with Claude Code via `claude mcp add legal`.
+### Step 2 — Create a Soluciones account
 
-Then open **a new Claude Code session** (important — existing sessions won't see the new skill) and run:
+You need an account **before** you install. Sign up here:
 
-```
-/legal
-```
+**[https://solucioneslegalesya.com/es/signup](https://solucioneslegalesya.com/es/signup)**
 
-Claude will open with a privilege disclosure and start helping you find the right attorney.
+Remember the email + password — the installer's browser flow will ask you to log in with them.
 
-### Verify the install
+### Step 3 — Run the installer
+
+In any terminal:
 
 ```bash
-npx legal status
+npx github:phelix001/legal install
 ```
 
-You should see:
+> **Why `github:phelix001/legal` instead of just `legal`?**
+> The bare name `legal` is already taken on npm by an unrelated package. Until we publish under a scoped name, use the GitHub shorthand above. It fetches from the same source, runs the same code.
+
+What happens next:
+
+1. The installer prints a privilege notice, then **opens your browser** to Soluciones Legales Ya.
+2. You log in with the account you created in Step 2.
+3. The browser redirects to `localhost:<random-port>/cb` and shows a green **Connected** card. Close that tab.
+4. Back in the terminal, you'll see:
+   ```
+   Authenticated as you@example.com
+   [1/2] Installing /legal skill...
+          -> /home/you/.claude/skills/legal.md
+   [2/2] Registering MCP server with Claude Code...
+          -> MCP server registered as "legal"
+   Done. Open a new Claude Code session and run /legal.
+   ```
+
+**If step [2/2] says "Could not register with `claude mcp add`"**, jump to [Troubleshooting → MCP registration failed](#mcp-registration-failed) below. Do not skip this — without registration, `/legal` will not work.
+
+### Step 4 — Open a NEW Claude Code session
+
+This is critical. Existing sessions do not pick up newly-installed skills or MCP servers. You must:
+
+1. **Exit your current Claude Code session** (Ctrl+D, or type `/exit`).
+2. Start fresh: `claude`
+3. Type `/legal` and press Enter.
+
+Claude will open with a privilege disclosure and start helping you find an attorney.
+
+---
+
+## Verify the install
+
+Run in any terminal:
+
+```bash
+npx github:phelix001/legal status
+```
+
+A fully-working install shows:
 
 ```
-  Package:    legal@x.y.z
+  Package:    legal@0.1.0
   Skill:      installed
   API URL:    https://solucioneslegalesya.com
   Auth:       you@example.com
@@ -77,96 +89,192 @@ You should see:
   MCP:        registered with Claude Code
 ```
 
+All five lines matter. If any say "not installed" / "not authenticated" / "not registered", see [Troubleshooting](#troubleshooting).
+
+---
+
+## Troubleshooting
+
+### "npm error could not determine executable to run"
+
+You ran `npx legal install` — which fails because the bare name `legal` is a different (unrelated) package on npm. Use the GitHub shorthand instead:
+
+```bash
+npx github:phelix001/legal install
+```
+
+### Browser opens but shows "localhost sent an invalid response"
+
+You have an old version of the Soluciones backend. Re-run the install — the call to `solucioneslegalesya.com/api/mcp/auth/signup` should redirect you to `https://solucioneslegalesya.com/es/login?callbackUrl=...`, not `https://localhost:3000/...`. If you're seeing the localhost redirect, ping support.
+
+### Browser window opens but "waiting for authentication" never finishes
+
+1. Make sure you actually logged in (clicked **Sign in** on the Soluciones page).
+2. Make sure you weren't in a private / incognito window that blocks localhost callbacks.
+3. Make sure no firewall is blocking the random local port the installer picked.
+4. Check your terminal for the URL it printed — you can paste that into your browser manually if the auto-open failed.
+
+### MCP registration failed
+
+Terminal message:
+
+```
+[2/2] Registering MCP server with Claude Code...
+       -> Could not register with `claude mcp add`.
+          Is Claude Code installed and on PATH?
+```
+
+This means the installer couldn't find the `claude` CLI. Two ways to fix it:
+
+**Option A — register manually** (recommended):
+
+```bash
+# Find where npx stored the package:
+npx github:phelix001/legal --version      # triggers the cache download
+ls ~/.npm/_npx/*/node_modules/legal/src/mcp-server/index.js | head -1
+# Then register with the path it prints:
+claude mcp add legal -- node <paste-path-here>
+```
+
+**Option B — install the package globally**, which keeps a stable path:
+
+```bash
+npm install -g github:phelix001/legal
+claude mcp add legal -- node "$(npm root -g)/legal/src/mcp-server/index.js"
+legal status
+```
+
+Verify:
+
+```bash
+claude mcp list | grep legal
+```
+
+### `/legal` isn't recognized in Claude Code
+
+You skipped Step 4. Claude Code loads skills and MCP servers at session start. Exit (`Ctrl+D` or `/exit`) and start a new session with `claude`.
+
+Also confirm the skill file exists:
+
+```bash
+ls -la ~/.claude/skills/legal.md
+```
+
+If it's missing, the skill install step failed — re-run `npx github:phelix001/legal install` and watch for errors.
+
+### Claude asks "Allow legal - search_providers?" on every call
+
+This is normal on first use. Claude Code asks before invoking any new MCP tool. Choose **"Yes, and don't ask again for legal - `<toolname>` commands in `<directory>`"** — that whitelists the tool permanently for that directory.
+
+To skip these prompts entirely (dev-only — trusts every tool):
+
+```bash
+claude --dangerously-skip-permissions
+```
+
+### "Authorization timed out"
+
+The installer waits five minutes for the browser flow. If you missed the window, just run it again:
+
+```bash
+npx github:phelix001/legal install
+```
+
+### I already have an access token from the dashboard
+
+Skip the browser flow:
+
+```bash
+npx github:phelix001/legal install slk_live_XXXXXXXXXXXX
+```
+
+---
+
+## Install on other MCP clients
+
 ### Claude Desktop
 
-Claude Desktop does not auto-pick-up Claude Code's MCP registration. Add the server manually to your Claude Desktop config:
+Claude Desktop does not share Claude Code's MCP registry. After running `npx github:phelix001/legal install` (to authenticate), add this block to Claude Desktop's config:
 
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "legal": {
-      "command": "npx",
-      "args": ["-y", "legal", "serve"]
-    }
-  }
-}
-```
-
-Then authenticate separately (the MCP server reads `~/.legal/config.json`):
-
-```bash
-npx legal install
-```
-
-Restart Claude Desktop. The `legal` tools will appear in the tool list.
-
-The `/legal` skill does NOT install into Claude Desktop (Desktop doesn't support skills). You'll need to prompt the conversation yourself — the tools are still available, just without the pre-canned system prompt. Paste the contents of `skills/legal.md` into your system prompt or the first message to get equivalent behavior.
-
-### Cursor, Windsurf, Zed, and other MCP clients
-
-Any client that supports [stdio MCP transport](https://modelcontextprotocol.io/docs/concepts/transports) can use this server. The pattern is the same as Claude Desktop:
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux:** `~/.config/Claude/claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "legal": {
       "command": "npx",
-      "args": ["-y", "legal", "serve"]
+      "args": ["-y", "github:phelix001/legal", "serve"]
     }
   }
 }
 ```
 
-Authenticate via `npx legal install` first (the MCP reads the shared config).
+Restart Claude Desktop completely (Quit → reopen, not just close-window). The `legal` tools will appear in the tool menu.
 
-### Non-interactive / CI install
+Claude Desktop does not support skills, so the `/legal` slash command is unavailable there. You'll need to paste the privilege disclosure yourself or copy [`skills/legal.md`](./skills/legal.md) into your system prompt.
 
-If you already have an access token (from the Soluciones dashboard):
+### Cursor
+
+1. `npx github:phelix001/legal install` (to authenticate)
+2. Add to `~/.cursor/mcp.json`:
+   ```json
+   {
+     "mcpServers": {
+       "legal": {
+         "command": "npx",
+         "args": ["-y", "github:phelix001/legal", "serve"]
+       }
+     }
+   }
+   ```
+3. Restart Cursor.
+
+### Windsurf, Zed, Continue, Raycast, and other MCP clients
+
+Any client that speaks stdio MCP works. The pattern is always:
+
+1. Authenticate once: `npx github:phelix001/legal install`
+2. Point your client config at `npx -y github:phelix001/legal serve`.
+3. Restart the client.
+
+The MCP server reads its token from `~/.legal/config.json`, so authentication is shared across all clients on the same machine.
+
+### Headless / CI
 
 ```bash
-npx legal install slk_live_XXXXXXXXXXXX
+npx github:phelix001/legal install slk_live_XXXXXXXXXXXX
+# or, skip the config file entirely:
+LEGAL_API_KEY=slk_live_XXXXXXXXXXXX npx github:phelix001/legal serve
 ```
 
-Or pass it via environment variable (skips the config file):
+---
+
+## Uninstall
 
 ```bash
-LEGAL_API_KEY=slk_live_XXXXXXXXXXXX npx legal serve
+npx github:phelix001/legal uninstall
 ```
 
-### Uninstall
+Removes the skill file, MCP registration, and `~/.legal/config.json`. Your Soluciones account is untouched.
 
-```bash
-npx legal uninstall
-```
+---
 
-Removes the skill, MCP registration, and local config. Your Soluciones account is untouched.
+## Attorney-client privilege is preserved by design
 
-## Usage
+Communications between a client and their attorney are legally privileged only if they stay confidential. A third party who learns the content generally waives the privilege. **Claude is a third party.** This MCP is built so Claude never becomes one:
 
-Once `/legal` is installed, in Claude Code:
+- **Claude never sees your messages to the attorney.** The substantive conversation happens in your browser, via a short-lived secure URL.
+- **Claude never sees your matter details.** `request_quote` takes a listing ID — not a description. You describe your situation in the browser.
+- **Claude never sees documents, evidence, or payment details.**
+- **Claude does see metadata:** which attorney you hired, the engagement state, pricing, timestamps, unread-message counts. That is enough to orchestrate without learning anything privileged.
 
-```
-/legal
-```
+This architecture also means Anthropic's systems never retain privileged content, and a malicious message from an attorney cannot reach Claude's context to manipulate it.
 
-Example conversation (English — works in Spanish too):
+The seven supported jurisdictions all enforce civil-law *secreto profesional* — attorneys can face criminal penalties for breach. The infrastructure must protect them as well as you.
 
-> **You:** I need to review a commercial lease in Mexico City.
->
-> **Claude:** *(opens with privilege disclosure)* Got it. What jurisdiction is the lease under — Mexico, or somewhere else?
->
-> **You:** Mexico.
->
-> **Claude:** *(calls `check_jurisdiction` and `search_providers`)* In Mexico, real-estate/contract review requires a Barra-licensed attorney. Here are three options in Mexico City: [...]. Which would you like to engage?
->
-> **You:** The first one.
->
-> **Claude:** *(presents mandatory disclosures verbatim, awaits acceptance, calls `request_quote`, then `open_composer`)*
-> Engagement created with García & Asociados. **Open this link to enter the details of your lease:** https://solucioneslegalesya.com/engagements/eng_.../access?token=...
-> This link expires in 5 minutes and works once. I won't see what you write there — that's by design.
+---
 
 ## Tools exposed
 
@@ -174,46 +282,55 @@ Example conversation (English — works in Spanish too):
 |------|---------|
 | `search_providers` | Find attorneys by jurisdiction, practice area, language |
 | `check_jurisdiction` | Required licenses, authorities, cross-border rules |
-| `get_mandatory_disclosures` | Regulatory disclosures to present verbatim |
-| `request_quote` | Create engagement shell from a listing (no matter details) |
+| `get_mandatory_disclosures` | Regulatory disclosures (presented verbatim by the skill) |
+| `request_quote` | Create an engagement shell from a listing (no matter details) |
 | `open_composer` | Short-lived secure URL to the browser thread |
 | `get_engagements` | Metadata-only engagement list / detail |
-| `update_engagement` | Accept, decline, cancel, or open dispute |
+| `update_engagement` | Accept, decline, cancel, or open a dispute |
 
 None of these tools accept or return privileged content.
+
+---
 
 ## Commands
 
 ```bash
-npx legal install              # Browser auth + install
-npx legal install <TOKEN>      # Install with a specific access token
-npx legal uninstall            # Remove skill, MCP registration, config
-npx legal configure --api-url=https://example.com [--reauth]
-npx legal status               # Show installation state
-npx legal help
-npx legal --version
+npx github:phelix001/legal install          # Browser auth + install skill + register MCP
+npx github:phelix001/legal install <TOKEN>  # Install with a specific access token
+npx github:phelix001/legal uninstall        # Remove skill, MCP registration, config
+npx github:phelix001/legal configure --api-url=https://example.com [--reauth]
+npx github:phelix001/legal status           # Show installation state
+npx github:phelix001/legal serve            # Run the MCP server (called by Claude via stdio — not by humans)
+npx github:phelix001/legal help
+npx github:phelix001/legal --version
 ```
+
+---
 
 ## Configuration
 
-`~/.legal/config.json`:
+`~/.legal/config.json` (created by `install`):
 
 ```json
 {
   "apiUrl": "https://solucioneslegalesya.com",
   "accessToken": "slk_live_...",
-  "refreshToken": "slkr_...",
+  "refreshToken": "slkr_live_...",
   "email": "you@example.com",
   "version": "0.1.0"
 }
 ```
 
+The file is created with mode `0600` (readable only by your Unix user) and the directory with mode `0700`.
+
 Environment overrides:
 
 - `LEGAL_API_URL` — override the API base URL
-- `LEGAL_API_KEY` — override the access token (bypasses config file)
+- `LEGAL_API_KEY` — override the access token (bypasses the config file)
 
-## Jurisdictions supported
+---
+
+## Jurisdictions
 
 Spain (ES), Mexico (MX), Colombia (CO), Argentina (AR), Chile (CL), Peru (PE), Dominican Republic (DO).
 
@@ -225,6 +342,8 @@ Corporate, tax, employment, family, immigration, real estate, intellectual prope
 
 Consultation, document drafting, document review, filing support, translation, notarization, custom quote, retainer.
 
+---
+
 ## Development
 
 ```bash
@@ -232,23 +351,26 @@ git clone https://github.com/phelix001/legal
 cd legal
 npm install
 
-# Run tests (against in-memory mock server)
+# Tests against the in-repo mock server
 npm test
 
-# Start mock server for manual testing
-npm run test-server
+# Live tests against production API
+LEGAL_API_URL=https://solucioneslegalesya.com npm run test:live
 
-# Run the MCP server directly
+# Run the MCP server directly, pointed at a mock server:
+npm run test-server &
 LEGAL_API_URL=http://127.0.0.1:4455 LEGAL_API_KEY=slk_test_mock1234567890abcdef npm start
 ```
 
 ### Privilege-boundary test
 
-The critical test in `test/tools.test.js` verifies that **no response from any `/api/mcp/*` endpoint leaks privileged fields** (`messages`, `body`, `matterDescription`, `intakeData`, `documents`, `evidence`, etc.). This test must pass before publishing.
+The critical test in `test/tools.test.js` verifies that **no response from any `/api/mcp/*` endpoint leaks privileged fields** (`messages`, `body`, `matterDescription`, `intakeData`, `documents`, `evidence`, etc.). This test must pass before any release is tagged.
 
-## What is and isn't legal advice
+---
 
-This tool is a marketplace connector. It helps you find a licensed attorney. It does not provide legal advice. Your attorney does.
+## What this tool is, and isn't
+
+This is a marketplace connector. It helps you find and hire a licensed attorney. It does not provide legal advice. Your attorney does.
 
 ## License
 
