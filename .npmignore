@@ -1,0 +1,9 @@
+test/
+.github/
+.gitignore
+.npmignore
+*.log
+node_modules/
+.env*
+.vscode/
+.idea/

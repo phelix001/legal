@@ -1,0 +1,53 @@
+{
+  "name": "legal",
+  "version": "0.1.0",
+  "description": "Engage real attorneys from Claude Code and any MCP-compatible AI. Privilege-preserving: AI never sees message content.",
+  "type": "module",
+  "bin": {
+    "legal": "./bin/legal.js"
+  },
+  "main": "src/mcp-server/index.js",
+  "scripts": {
+    "start": "node src/mcp-server/index.js",
+    "dev": "node --watch src/mcp-server/index.js",
+    "serve": "node src/mcp-server/index.js",
+    "test": "__TEST_IMPORTED=1 node --test test/tools.test.js",
+    "test:live": "LEGAL_API_URL=https://solucioneslegalesya.com __TEST_IMPORTED=1 node --test test/tools.test.js",
+    "test-server": "node test/mock-server.js"
+  },
+  "keywords": [
+    "claude-code",
+    "mcp",
+    "model-context-protocol",
+    "legal",
+    "attorney",
+    "lawyer",
+    "legal-tech",
+    "attorney-client-privilege",
+    "soluciones-legales-ya"
+  ],
+  "author": "SecondaryDAO",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/secondarydao/legal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/secondarydao/legal/issues"
+  },
+  "homepage": "https://github.com/secondarydao/legal#readme",
+  "files": [
+    "bin/",
+    "src/",
+    "skills/",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "zod": "^3.23.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

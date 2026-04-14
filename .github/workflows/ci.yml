@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci
+      - name: Run tests (includes privilege-boundary check)
+        run: npm test
+      - name: Verify CLI entrypoints
+        run: |
+          node bin/legal.js --version
+          node bin/legal.js help > /dev/null
+          node bin/legal.js status > /dev/null
+      - name: Verify MCP server handshake
+        run: |
+          echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' | \
+            timeout 3 node src/mcp-server/index.js | head -1 | grep -q '"serverInfo"'
