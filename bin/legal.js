@@ -249,7 +249,7 @@ function helpCmd() {
 
   After install, open a new Claude Code session and run /legal.
 
-  Docs: https://github.com/secondarydao/legal
+  Docs: https://github.com/phelix001/legal
 `);
 }
 

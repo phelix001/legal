@@ -30,12 +30,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/secondarydao/legal.git"
+    "url": "git+https://github.com/phelix001/legal.git"
   },
   "bugs": {
-    "url": "https://github.com/secondarydao/legal/issues"
+    "url": "https://github.com/phelix001/legal/issues"
   },
-  "homepage": "https://github.com/secondarydao/legal#readme",
+  "homepage": "https://github.com/phelix001/legal#readme",
   "files": [
     "bin/",
     "src/",

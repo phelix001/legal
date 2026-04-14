@@ -228,7 +228,7 @@ Consultation, document drafting, document review, filing support, translation, n
 ## Development
 
 ```bash
-git clone https://github.com/secondarydao/legal
+git clone https://github.com/phelix001/legal
 cd legal
 npm install
 
@@ -259,4 +259,4 @@ MIT. See [LICENSE](./LICENSE).
 - [Soluciones Legales Ya](https://solucioneslegalesya.com)
 - [Model Context Protocol](https://modelcontextprotocol.io)
 - [Claude Code](https://claude.com/claude-code)
-- [Issues](https://github.com/secondarydao/legal/issues)
+- [Issues](https://github.com/phelix001/legal/issues)
