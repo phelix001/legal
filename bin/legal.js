@@ -87,7 +87,7 @@ async function installCmd() {
       auth = await startAuthFlow(apiUrl);
     } catch (err) {
       console.error(`\n  Authentication failed: ${err.message}`);
-      console.error('  You can also run: npx legal install <SLK_LIVE_TOKEN>\n');
+      console.error('  You can also run: npx @legalsolutions/legal install <SLK_LIVE_TOKEN>\n');
       process.exit(1);
     }
   }
@@ -237,15 +237,15 @@ function helpCmd() {
   and the attorney via short-lived secure URLs.
 
   Usage:
-    npx legal install              Sign in via browser, install skill, register MCP
-    npx legal install <TOKEN>      Install with an existing slk_live_... token
-    npx legal uninstall            Remove skill, MCP registration, and local config
-    npx legal configure [--api-url=URL] [--reauth]
+    npx @legalsolutions/legal install              Sign in via browser, install skill, register MCP
+    npx @legalsolutions/legal install <TOKEN>      Install with an existing slk_live_... token
+    npx @legalsolutions/legal uninstall            Remove skill, MCP registration, and local config
+    npx @legalsolutions/legal configure [--api-url=URL] [--reauth]
                                    Change the API endpoint or re-authenticate
-    npx legal status               Show installation state
-    npx legal serve                Run the MCP server (used by Claude Code; not for humans)
-    npx legal help                 Show this help
-    npx legal --version            Print version
+    npx @legalsolutions/legal status               Show installation state
+    npx @legalsolutions/legal serve                Run the MCP server (used by Claude Code; not for humans)
+    npx @legalsolutions/legal help                 Show this help
+    npx @legalsolutions/legal --version            Print version
 
   After install, open a new Claude Code session and run /legal.
 

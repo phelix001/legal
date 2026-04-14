@@ -1,6 +1,9 @@
 {
-  "name": "legal",
+  "name": "@legalsolutions/legal",
   "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Engage real attorneys from Claude Code and any MCP-compatible AI. Privilege-preserving: AI never sees message content.",
   "type": "module",
   "bin": {

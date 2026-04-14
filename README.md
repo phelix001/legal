@@ -35,11 +35,8 @@ Remember the email + password — the installer's browser flow will ask you to l
 In any terminal:
 
 ```bash
-npx github:phelix001/legal install
+npx @legalsolutions/legal install
 ```
-
-> **Why `github:phelix001/legal` instead of just `legal`?**
-> The bare name `legal` is already taken on npm by an unrelated package. Until we publish under a scoped name, use the GitHub shorthand above. It fetches from the same source, runs the same code.
 
 What happens next:
 
@@ -75,7 +72,7 @@ Claude will open with a privilege disclosure and start helping you find an attor
 Run in any terminal:
 
 ```bash
-npx github:phelix001/legal status
+npx @legalsolutions/legal status
 ```
 
 A fully-working install shows:
@@ -97,10 +94,10 @@ All five lines matter. If any say "not installed" / "not authenticated" / "not r
 
 ### "npm error could not determine executable to run"
 
-You ran `npx legal install` — which fails because the bare name `legal` is a different (unrelated) package on npm. Use the GitHub shorthand instead:
+You ran `npx legal install` — the bare name `legal` is a different (unrelated) package on npm. Always use the scoped name:
 
 ```bash
-npx github:phelix001/legal install
+npx @legalsolutions/legal install
 ```
 
 ### Browser opens but shows "localhost sent an invalid response"
@@ -130,8 +127,8 @@ This means the installer couldn't find the `claude` CLI. Two ways to fix it:
 
 ```bash
 # Find where npx stored the package:
-npx github:phelix001/legal --version      # triggers the cache download
-ls ~/.npm/_npx/*/node_modules/legal/src/mcp-server/index.js | head -1
+npx @legalsolutions/legal --version      # triggers the cache download
+ls ~/.npm/_npx/*/node_modules/@legalsolutions/legal/src/mcp-server/index.js | head -1
 # Then register with the path it prints:
 claude mcp add legal -- node <paste-path-here>
 ```
@@ -139,8 +136,8 @@ claude mcp add legal -- node <paste-path-here>
 **Option B — install the package globally**, which keeps a stable path:
 
 ```bash
-npm install -g github:phelix001/legal
-claude mcp add legal -- node "$(npm root -g)/legal/src/mcp-server/index.js"
+npm install -g @legalsolutions/legal
+claude mcp add legal -- node "$(npm root -g)/@legalsolutions/legal/src/mcp-server/index.js"
 legal status
 ```
 
@@ -160,7 +157,7 @@ Also confirm the skill file exists:
 ls -la ~/.claude/skills/legal.md
 ```
 
-If it's missing, the skill install step failed — re-run `npx github:phelix001/legal install` and watch for errors.
+If it's missing, the skill install step failed — re-run `npx @legalsolutions/legal install` and watch for errors.
 
 ### Claude asks "Allow legal - search_providers?" on every call
 
@@ -177,7 +174,7 @@ claude --dangerously-skip-permissions
 The installer waits five minutes for the browser flow. If you missed the window, just run it again:
 
 ```bash
-npx github:phelix001/legal install
+npx @legalsolutions/legal install
 ```
 
 ### I already have an access token from the dashboard
@@ -185,7 +182,7 @@ npx github:phelix001/legal install
 Skip the browser flow:
 
 ```bash
-npx github:phelix001/legal install slk_live_XXXXXXXXXXXX
+npx @legalsolutions/legal install slk_live_XXXXXXXXXXXX
 ```
 
 ---
@@ -194,7 +191,7 @@ npx github:phelix001/legal install slk_live_XXXXXXXXXXXX
 
 ### Claude Desktop
 
-Claude Desktop does not share Claude Code's MCP registry. After running `npx github:phelix001/legal install` (to authenticate), add this block to Claude Desktop's config:
+Claude Desktop does not share Claude Code's MCP registry. After running `npx @legalsolutions/legal install` (to authenticate), add this block to Claude Desktop's config:
 
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
@@ -205,7 +202,7 @@ Claude Desktop does not share Claude Code's MCP registry. After running `npx git
   "mcpServers": {
     "legal": {
       "command": "npx",
-      "args": ["-y", "github:phelix001/legal", "serve"]
+      "args": ["-y", "@legalsolutions/legal", "serve"]
     }
   }
 }
@@ -217,14 +214,14 @@ Claude Desktop does not support skills, so the `/legal` slash command is unavail
 
 ### Cursor
 
-1. `npx github:phelix001/legal install` (to authenticate)
+1. `npx @legalsolutions/legal install` (to authenticate)
 2. Add to `~/.cursor/mcp.json`:
    ```json
    {
      "mcpServers": {
        "legal": {
          "command": "npx",
-         "args": ["-y", "github:phelix001/legal", "serve"]
+         "args": ["-y", "@legalsolutions/legal", "serve"]
        }
      }
    }
@@ -235,8 +232,8 @@ Claude Desktop does not support skills, so the `/legal` slash command is unavail
 
 Any client that speaks stdio MCP works. The pattern is always:
 
-1. Authenticate once: `npx github:phelix001/legal install`
-2. Point your client config at `npx -y github:phelix001/legal serve`.
+1. Authenticate once: `npx @legalsolutions/legal install`
+2. Point your client config at `npx -y @legalsolutions/legal serve`.
 3. Restart the client.
 
 The MCP server reads its token from `~/.legal/config.json`, so authentication is shared across all clients on the same machine.
@@ -244,9 +241,9 @@ The MCP server reads its token from `~/.legal/config.json`, so authentication is
 ### Headless / CI
 
 ```bash
-npx github:phelix001/legal install slk_live_XXXXXXXXXXXX
+npx @legalsolutions/legal install slk_live_XXXXXXXXXXXX
 # or, skip the config file entirely:
-LEGAL_API_KEY=slk_live_XXXXXXXXXXXX npx github:phelix001/legal serve
+LEGAL_API_KEY=slk_live_XXXXXXXXXXXX npx @legalsolutions/legal serve
 ```
 
 ---
@@ -254,7 +251,7 @@ LEGAL_API_KEY=slk_live_XXXXXXXXXXXX npx github:phelix001/legal serve
 ## Uninstall
 
 ```bash
-npx github:phelix001/legal uninstall
+npx @legalsolutions/legal uninstall
 ```
 
 Removes the skill file, MCP registration, and `~/.legal/config.json`. Your Soluciones account is untouched.
@@ -295,14 +292,14 @@ None of these tools accept or return privileged content.
 ## Commands
 
 ```bash
-npx github:phelix001/legal install          # Browser auth + install skill + register MCP
-npx github:phelix001/legal install <TOKEN>  # Install with a specific access token
-npx github:phelix001/legal uninstall        # Remove skill, MCP registration, config
-npx github:phelix001/legal configure --api-url=https://example.com [--reauth]
-npx github:phelix001/legal status           # Show installation state
-npx github:phelix001/legal serve            # Run the MCP server (called by Claude via stdio — not by humans)
-npx github:phelix001/legal help
-npx github:phelix001/legal --version
+npx @legalsolutions/legal install          # Browser auth + install skill + register MCP
+npx @legalsolutions/legal install <TOKEN>  # Install with a specific access token
+npx @legalsolutions/legal uninstall        # Remove skill, MCP registration, config
+npx @legalsolutions/legal configure --api-url=https://example.com [--reauth]
+npx @legalsolutions/legal status           # Show installation state
+npx @legalsolutions/legal serve            # Run the MCP server (called by Claude via stdio — not by humans)
+npx @legalsolutions/legal help
+npx @legalsolutions/legal --version
 ```
 
 ---
